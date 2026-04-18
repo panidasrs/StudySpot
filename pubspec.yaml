@@ -1,0 +1,41 @@
+name: studyspot
+description: StudySpot - Find your perfect study place at Mahidol University
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase (Storage ไม่ได้ใช้ → ใช้ Cloudinary แทน ฟรี!)
+  firebase_core: ^2.27.0
+  firebase_auth: ^4.17.8
+  cloud_firestore: ^4.15.8
+
+  # Cloudinary (free image hosting — replaces Firebase Storage)
+  http: ^1.2.1
+
+  # Google Maps
+  google_maps_flutter: ^2.6.0
+  geolocator: ^11.0.0
+
+  # UI & Utilities
+  cached_network_image: ^3.3.1
+  flutter_rating_bar: ^4.0.1
+  image_picker: ^1.0.7
+  provider: ^6.1.2
+  intl: ^0.19.0
+  url_launcher: ^6.2.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
