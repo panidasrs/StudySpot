@@ -1,15 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
 import '../models/models.dart';
 import '../services/firebase_service.dart';
 import '../services/auth_provider.dart';
 import '../utils/app_theme.dart';
 import 'place_detail_screen.dart';
-import 'package:geolocator/geolocator.dart';
 
-class SavedPlacesScreen extends StatelessWidget {
+class SavedPlacesScreen extends StatefulWidget {
   const SavedPlacesScreen({super.key});
+
+  @override
+  State<SavedPlacesScreen> createState() => _SavedPlacesScreenState();
+}
+
+class _SavedPlacesScreenState extends State<SavedPlacesScreen> {
+  Position? _currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+      if (permission == LocationPermission.deniedForever) return;
+
+      final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      if (mounted) setState(() => _currentPosition = pos);
+    } catch (_) {}
+  }
+
+  String _distanceText(StudySpot spot) {
+    if (_currentPosition == null) return '-- km';
+    final meters = Geolocator.distanceBetween(
+      _currentPosition!.latitude,
+      _currentPosition!.longitude,
+      spot.latitude,
+      spot.longitude,
+    );
+    if (meters < 1000) {
+      return '${meters.toStringAsFixed(0)} m';
+    } else {
+      return '${(meters / 1000).toStringAsFixed(1)} km';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +118,7 @@ class SavedPlacesScreen extends StatelessWidget {
                         itemCount: spots.length,
                         itemBuilder: (_, i) => _SavedSpotCard(
                           spot: spots[i],
+                          distanceText: _distanceText(spots[i]),
                           onUnsave: () {
                             if (auth.user == null) return;
                             FirebaseService().toggleSavedSpot(
@@ -90,8 +138,14 @@ class SavedPlacesScreen extends StatelessWidget {
 
 class _SavedSpotCard extends StatelessWidget {
   final StudySpot spot;
+  final String distanceText;
   final VoidCallback onUnsave;
-  const _SavedSpotCard({required this.spot, required this.onUnsave});
+
+  const _SavedSpotCard({
+    required this.spot,
+    required this.distanceText,
+    required this.onUnsave,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +239,7 @@ class _SavedSpotCard extends StatelessWidget {
                       const Icon(Icons.location_on_outlined,
                           color: AppColors.textSecondary, size: 14),
                       const SizedBox(width: 2),
-                      Text('${spot.latitude.abs().toStringAsFixed(1)} km',
+                      Text(distanceText,
                           style: const TextStyle(
                               fontSize: 13,
                               color: AppColors.textSecondary)),
@@ -202,14 +256,10 @@ class _SavedSpotCard extends StatelessWidget {
                   Wrap(
                     spacing: 6,
                     children: [
-                      if (spot.isQuiet)
-                        _chip('Quiet'),
-                      if (spot.hasWifi)
-                        _chip('WiFi'),
-                      if (spot.hasPlug)
-                        _chip('Plug'),
-                      if (spot.isOpenLate)
-                        _chip('Open late'),
+                      if (spot.isQuiet) _chip('Quiet'),
+                      if (spot.hasWifi) _chip('WiFi'),
+                      if (spot.hasPlug) _chip('Plug'),
+                      if (spot.isOpenLate) _chip('Open late'),
                     ],
                   ),
                   const SizedBox(height: 8),
