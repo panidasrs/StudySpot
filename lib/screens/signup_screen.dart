@@ -1,4 +1,3 @@
-// Signup screen by Nana
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_provider.dart';
@@ -37,12 +36,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       backgroundColor: AppColors.loginBg,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Spacer(flex: 2),
+              const SizedBox(height: 40),
               Container(
                 width: 90,
                 height: 90,
@@ -62,7 +61,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 6),
               const Text('Join StudySpot community',
                   style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
-              const Spacer(flex: 2),
+              const SizedBox(height: 40),
               TextField(
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,
@@ -110,7 +109,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ],
               ),
-              const Spacer(),
+              const SizedBox(height: 20),
             ],
           ),
         ),
